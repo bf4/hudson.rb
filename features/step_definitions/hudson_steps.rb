@@ -42,12 +42,38 @@ Given /^the Hudson server has no slaves$/ do
       job_url = "#{base_url}/computer/#{CGI::escape(name).gsub('+', '%20')}"
       res = Net::HTTP.start("localhost", port) { |http| http.post("#{job_url}/doDelete/api/json", {}) }
     end
-    hudson_info = Yajl::Parser.new.parse(open("http://#{@hudson_host}:#{@hudson_port}/api/json"))
-    hudson_info['jobs'].should == []
+    hudson_info = Yajl::Parser.new.parse(open("http://#{base_url}/computes/api/json"))
+    hudson_info['computer'].should have(1).item
   else
     puts "WARNING: Run 'I have a Hudson server running' step first."
   end
 end
+
+Given /^managing the Hudson server requires authenticating$/ do
+  if port = @hudson_port
+    require "fileutils"
+
+    @hudson_home = "/tmp/test_hudson"
+    @user_dir    = "#{@hudson_home}/admin"
+    fixtures     = File.join(File.dirname(__FILE__), "..", "fixtures")
+
+    FileUtils.mkdir_p(@user_dir)
+    FileUtils.cp(File.join(fixtures, "user.config.xml"),           File.join(@user_dir, "config.xml"))
+    FileUtils.cp(File.join(fixtures, "authentication.config.xml"), File.join(@hudson_home, "config.xml"))
+
+    Net::HTTP.start("localhost", port) do |http|
+      req = Net::HTTP::Post.new("/reload/api/json")
+      http.request(req)
+    end
+
+    Net::HTTP.start("localhost", port) do |http|
+      sleep 1 while http.get("/").body =~ /Please wait while Hudson is getting ready to work/
+    end
+  else
+    puts "WARNING: Run 'I have a Hudson server running' step first."
+  end
+end
+
 
 Given /^there is nothing listening on port (\d+)$/ do |port|
   lambda {
