@@ -191,6 +191,16 @@ module Hudson
     def self.delete_node(name)
       post_plain("#{base_uri}/computer/#{CGI::escape(name).gsub('+', '%20')}/doDelete/api/json")
     end
+    
+    def self.reload_server_config(options = {})
+      post_plain("#{base_uri}/reload/api/json")
+      if options[:wait]
+        uri = URI.parse(base_uri)
+        Net::HTTP.start(uri.host, uri.port) do |http|
+          sleep 1 while http.get("/").body =~ /Please wait while Hudson is getting ready to work/
+        end
+      end
+    end
 
     # Helper for POST that don't barf at Hudson's crappy API responses
     def self.post_plain(path, options = {})

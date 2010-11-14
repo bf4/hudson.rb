@@ -7,7 +7,7 @@ Feature: Authentication
   Background:
     Given I have a Hudson server running
     And the Hudson server has no current jobs
-    And managing the Hudson server requires authenticating
+    And managing the Hudson server requires authentication
 
   Scenario: Not authenticated
     When I run local executable "hudson" with arguments "list --host localhost --port 3010"
