@@ -148,6 +148,7 @@ module Hudson
     def list
       select_hudson_server(options)
       summary = Hudson::Api.summary
+      raise_authentication_error if summary["useSecurity"] && !authenticated?
       unless summary["jobs"].blank?
         shell.say "#{@uri}:", :bold
         summary["jobs"].each do |job|
@@ -219,6 +220,14 @@ USEAGE
     end
 
     private
+
+    def raise_authentication_error
+      error "#{@uri} - Authentication required. Please use --username and --password options"
+    end
+
+    def authenticated?
+      false
+    end
 
     def select_hudson_server(options)
       unless @uri = Hudson::Api.setup_base_url(options)
