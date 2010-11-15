@@ -8,4 +8,6 @@ begin
   Hudson::CLI.start
 rescue Errno::ECONNREFUSED, Errno::EAFNOSUPPORT
   Hudson::CLI.new.shell.say "No connection available to the server.", :red
+rescue Hudson::Api::HTTPUnauthorized
+  Hudson::CLI.new.shell.say "Authentication required. Please use --username and --password options.", :red
 end

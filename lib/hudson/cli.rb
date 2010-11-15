@@ -13,6 +13,8 @@ module Hudson
     def self.common_options
       method_option :host, :desc => 'connect to hudson server on this host'
       method_option :port, :desc => 'connect to hudson server on this port'
+      method_option :user, :desc => 'username for authentication'
+      method_option :password, :desc => 'password for authentication'
     end
 
     desc "server [options]", "run a hudson server"
@@ -148,7 +150,7 @@ module Hudson
     def list
       select_hudson_server(options)
       summary = Hudson::Api.summary
-      raise_authentication_error if summary["useSecurity"] && !authenticated?
+      # raise_authentication_error if summary["useSecurity"] && !authenticated?
       unless summary["jobs"].blank?
         shell.say "#{@uri}:", :bold
         summary["jobs"].each do |job|

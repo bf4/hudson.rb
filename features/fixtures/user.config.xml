@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <user>
-  <fullName>Foo Bar</fullName>
+  <fullName>Dr Nic Williams</fullName>
   <properties>
     <hudson.model.MyViewsProperty>
       <primaryViewName>All</primaryViewName>
@@ -14,10 +14,10 @@
       </views>
     </hudson.model.MyViewsProperty>
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
-      <passwordHash>YfWKuO:65b9e18f77c17a84f78db759fc8018211416d71d3958e2c93ee6354ae3d5ed09</passwordHash>
+      <passwordHash>lsxjRw:f7785102fdf3f31437d2b02d0c06e9ddc392aa8a7822b01a25b43ec54e88b712</passwordHash>
     </hudson.security.HudsonPrivateSecurityRealm_-Details>
     <hudson.tasks.Mailer_-UserProperty>
-      <emailAddress>foo@example.com</emailAddress>
+      <emailAddress>drnic@example.com</emailAddress>
     </hudson.tasks.Mailer_-UserProperty>
   </properties>
 </user>

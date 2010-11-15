@@ -15,6 +15,7 @@ module Hudson
     # http_proxy 'localhost', '8888'
     
     JobAlreadyExistsError = Class.new(Exception)
+    HTTPUnauthorized      = Class.new(Exception)
 
     def self.setup_base_url(options)
       options = options.with_clean_keys
@@ -23,6 +24,8 @@ module Hudson
       options[:host] ||= ENV['HUDSON_HOST']
       options[:port] ||= ENV['HUDSON_PORT']
       options[:port] &&= options[:port].to_i
+      options[:userinfo] = "#{options.delete(:user)}:#{options.delete(:password)}" if options[:user]
+      # TODO update base_uri with userinfo
       return false unless options[:host] || Hudson::Config.config["base_uri"]
       uri = options[:host] ? URI::HTTP.build(options) : Hudson::Config.config["base_uri"]
       base_uri uri.to_s
@@ -47,6 +50,8 @@ module Hudson
         if res.code.to_i == 200
           cache_base_uri
           true
+        elsif res.code.to_i == 403
+          raise HTTPUnauthorized
         else
           require "hpricot"
           doc = Hpricot(res.body)

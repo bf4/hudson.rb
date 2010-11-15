@@ -121,3 +121,7 @@ Then /^the Hudson config "([^"]*)" should be:$/ do |xpath, string|
   config.search(xpath).to_s.should == string
 end
 
+Given /^I add user "([^"]*)" with password "([^"]*)"$/ do |user, password|
+  
+end
+
