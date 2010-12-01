@@ -48,6 +48,9 @@ module Hudson
     method_option :"public-scm", :desc    => "use public scm URL", :type => :boolean, :default => false
     method_option :template, :desc        => "template of job steps (available: #{JobConfigBuilder::VALID_JOB_TEMPLATES.join ','})", :default => 'ruby'
     method_option :"no-template", :desc   => "do not use a template of default steps; avoids Gemfile requirement", :type => :boolean, :default => false
+    method_option :name, :desc => "name of job", :type => :string, :default => nil
+    method_option :gemset, :desc => "rvm gemset", :type => :string, :default => nil
+    method_option :email, :desc => "email to send on failure", :type => :string, :default => nil
     def create(project_path)
       select_hudson_server(options)
       FileUtils.chdir(project_path) do
@@ -66,8 +69,10 @@ module Hudson
             c.scm_branches  = options[:"scm-branches"].split(/\s*,\s*/)
             c.assigned_node = options[:"assigned-node"] if options[:"assigned-node"]
             c.public_scm    = options[:"public-scm"]
+            c.gemset        = options[:gemset]
+            c.email         = options[:email]
           end
-          name = File.basename(FileUtils.pwd)
+          name = options[:name] || File.basename(FileUtils.pwd)
           if Hudson::Api.create_job(name, job_config, options)
             build_url = "#{@uri}/job/#{name.gsub(/\s/,'%20')}/build"
             shell.say "Added#{' ' + template unless template == 'none'} project '#{name}' to Hudson.", :green
@@ -144,6 +149,7 @@ module Hudson
     end
 
     desc "list [options]", "list jobs on a hudson server"
+    method_option :"nocolor", :desc => "return without color", :type => :boolean, :default => false
     common_options
     def list
       select_hudson_server(options)
@@ -155,7 +161,11 @@ module Hudson
           color = 'red' if job['color'] =~ /red/
           color = 'green' if job['color'] =~ /(blue|green)/
           color ||= 'yellow' # if color =~ /grey/ || color == 'disabled'
-          shell.say "* "; shell.say(shell.set_color(job['name'], color.to_sym, bold), nil, true)
+          if options[:nocolor]
+            shell.say "* "; shell.say(job['name'])
+          else
+            shell.say "* "; shell.say(shell.set_color(job['name'], color.to_sym, bold), nil, true)
+          end
         end
         shell.say ""
       else

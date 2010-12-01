@@ -8,10 +8,12 @@ module Hudson
     attr_accessor :scm, :public_scm, :git_branches
     attr_accessor :assigned_node, :node_labels # TODO just one of these
     attr_accessor :envfile
+    attr_accessor :gemset
+    attr_accessor :email
     
     InvalidTemplate = Class.new(StandardError)
     
-    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem]
+    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem metromix]
     
     # +job_type+ - template of default steps to create with the job
     # +steps+ - array of [:method, cmd], e.g. [:build_shell_step, "bundle initial"]
@@ -36,6 +38,12 @@ module Hudson
       b.tag!(matrix_project? ? "matrix-project" : "project") do
         b.actions
         b.description
+        b.logRotator do
+          b.daysToKeep -1
+          b.numToKeep 10
+          b.artifactDaysToKeep -1
+          b.artifactNumToKeep -1
+        end
         b.keepDependencies false
         b.properties
         build_scm b
@@ -43,11 +51,25 @@ module Hudson
         b.canRoam !assigned_node
         b.disabled false
         b.blockBuildWhenUpstreamBuilding false
-        b.triggers :class => "vector"
+        b.triggers :class => "vector" do
+          b.tag!("hudson.triggers.SCMTrigger") do
+            b.spec "*/5 * * * *"
+          end
+        end
         b.concurrentBuild false
         build_axes b if matrix_project?
         build_steps b
-        b.publishers
+        if email
+          b.publishers do
+            b.tag!("hudson.tasks.Mailer") do
+              b.recipients email
+              b.dontNotifyEveryUnstableBuild false
+              b.sendToIndividuals false
+            end
+          end
+        else
+          b.publishers
+        end
         build_wrappers b
         b.runSequentially false if matrix_project?
       end
@@ -190,6 +212,10 @@ module Hudson
     
     def default_steps(job_type)
       steps = case job_type.to_sym
+      when :metromix
+        [
+          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle install\nbundle exec rake hudson:ci"]
+        ]
       when :rails, :rails3
         [
           [:build_shell_step, "bundle install"],
