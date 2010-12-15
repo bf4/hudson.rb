@@ -69,7 +69,7 @@ module Hudson
     
     # Attempts to delete a job +name+
     def self.delete_job(name)
-      res = post_plain "#{job_url name}/doDelete"
+      res = post_plain "/job/#{name.gsub(" ", "%20")}/doDelete"
       res.code.to_i == 302
     end
     

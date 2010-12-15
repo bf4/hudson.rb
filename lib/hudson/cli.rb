@@ -117,9 +117,11 @@ module Hudson
       FileUtils.chdir(project_path) do
         name = File.basename(FileUtils.pwd)
         if Hudson::Api.delete_job(name)
+          p "Removed project '#{name}' from Hudson."
           shell.say "Removed project '#{name}' from Hudson."
         else
-          error "Failed to delete project '#{name}'."
+          p "Failed to delete project '#{name}'."
+          error "Failed to delete project '#{name}'." 
         end
       end
     end
