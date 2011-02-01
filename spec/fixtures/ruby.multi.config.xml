@@ -65,7 +65,7 @@
       <command>rvm gemset create ruby-$RUBY_VERSION &amp;&amp; rvm gemset use ruby-$RUBY_VERSION</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>bundle install</command>
+      <command>bundle update</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>bundle exec rake</command>
