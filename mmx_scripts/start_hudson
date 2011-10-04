@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+echo "no need to sudo, else you'll get an abort trap"
+echo 'starting hudson'
+terminitor start hudson
+

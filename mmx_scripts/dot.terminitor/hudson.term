@@ -1,0 +1,35 @@
+# COMMENT OF SCRIPT HERE
+# you can make as many tabs as you wish...
+# tab names are actually arbitrary at this point too.
+
+window do
+
+  tab :name => "affiliate" do
+    run "cd /Users/continuum/Sites/metromix.com"
+    run "bundle install; bundle exec rake search:start"
+  end
+
+  tab :name => "express" do
+    run "cd /Users/continuum/Sites/metromix-express"
+    run "bundle install; bundle exec rake search:start"
+  end
+
+  tab :name => "hudson" do
+    run "hudson server"
+  end
+
+  tab :name => "watcher" do
+    run "cd /Users/continuum/Sites/hudson_script"
+    run "clockwork clock.rb"
+  end
+
+  # has launch agent
+  tab :name => "couch" do
+    run "couchdb &"
+     # run "echo 'now run sudo terminitor start couch'"
+     # run "echo 'now run bundle exec rake search:start from affilaite and express'"
+  end
+
+  #tab /usr/local/bin/memcached
+end
+
