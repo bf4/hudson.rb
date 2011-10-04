@@ -2,6 +2,22 @@ require 'rubygems'
 require 'grit'
 include Grit
 
+####  Wanna add a job manually?  drop into irb in this directory 
+#
+# app = "Express"
+# branch = "master"
+#
+# require 'branch_watcher'
+# MetromixProject.init_projects
+# builder = HudsonJobBuilder.new
+# project = MetromixProject.all_projects.detect {|project| project.name == app}
+# # Now add a job for that branch to that project 
+# builder.build_job_for(project, branch)
+#
+# Other notes
+# project.job_name("master") returns e.g. Affiliate master
+# builder.current_hudson_jobs # see current jobs if you want
+#
 class MetromixProject
   
   attr_accessor :name, :directory, :ruby, :gemset 
