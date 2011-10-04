@@ -1,0 +1,9 @@
+# we check available branches in ~/Sites
+# we run jobs in ~/.hudson/server/jobs/#{app branch}/workspace
+# there's a copy of dev support cache files in ~/Sites/metromix.com/tmp/support_table_cache
+# the hudson.rb gem is a ruby api for interacting with hudson
+#
+# In mmx_scripts:
+# the branch_watcher.rb script actually polls for new branches for each app
+# and is responsible for creating and deleting jobs
+# it is run regularly by 'clockwork'
