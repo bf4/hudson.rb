@@ -205,7 +205,7 @@ module Hudson
         self.steps ||= default_steps(job_type)
         steps.each do |step|
           method, cmd = step
-          send(method.to_sym, b, cmd) # e.g. build_shell_step(b, "bundle update")
+          send(method.to_sym, b, cmd) # e.g. build_shell_step(b, "bundle install")
         end
       end
     end
@@ -214,11 +214,11 @@ module Hudson
       steps = case job_type.to_sym
       when :metromix
         [
-          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle update\nbundle exec rake hudson:ci"]
+          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle install\nbundle exec rake hudson:ci"]
         ]
       when :rails, :rails3
         [
-          [:build_shell_step, "bundle update"],
+          [:build_shell_step, "bundle install"],
           [:build_ruby_step, <<-RUBY.gsub(/^            /, '')],
             unless File.exist?("config/database.yml")
               require 'fileutils'
@@ -239,7 +239,7 @@ module Hudson
         ]
       when :ruby, :rubygems
         [
-          [:build_shell_step, "bundle update"],
+          [:build_shell_step, "bundle install"],
           [:build_shell_step, "bundle exec rake"]
         ]
       else

@@ -47,7 +47,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>bundle update</command>
+      <command>bundle install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>bundle exec rake</command>
