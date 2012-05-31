@@ -15,7 +15,7 @@ window do
   end
 
   tab :name => "hudson" do
-    run "hudson server"
+    run "hudson server --daemon"
   end
 
   tab :name => "watcher" do

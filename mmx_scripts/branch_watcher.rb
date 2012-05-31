@@ -25,7 +25,7 @@ class MetromixProject
   PROJECT_DATA = [
     ["Express", "metromix-express", "ruby-1.8.6-p399"],
     ["Deals", "deals", "ruby-1.8.6-p399"],
-    ["Deals Management", "deals-mgmt", "ruby-1.8.6-p399"],
+    ["Deals_Management", "deals-mgmt", "ruby-1.8.6-p399"],
     ["Affiliate", "metromix.com", "ruby-1.8.6-p399"],
     ["URN", "urn_identifiable", "ruby-1.8.6-p399"]
   ]
@@ -92,7 +92,11 @@ class MetromixProject
       p dir_name
       Dir.chdir(dir_name) do
         `git remote prune origin`
+        `git reset --hard HEAD`
         `git pull`
+        #`git prune origin`
+        #response =  `git reset --hard origin/$(git branch | grep '*' | cut -d' ' -f2) 2>&1` #rediret STDERR to STDOUT
+        #puts response
         set_rvmrc
         delete_gemfile_lock
       end
@@ -113,7 +117,7 @@ class MetromixProject
   end
   
   def job_name(branch)
-    "#{name} #{branch}"
+    "#{name}_#{branch}"
   end
   
 end
