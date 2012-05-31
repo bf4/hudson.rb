@@ -33,7 +33,7 @@ class MetromixProject
     ["URN", "urn_identifiable", "ruby-1.8.7-p357"],
     ["mmx_common", "mmx_common", "ruby-1.8.7-p357"],
     ["mmx_subdomains", "mmx-subdomains", "ruby-1.8.7-p357"],
-    ["rabidsquirrel", "rabidsquirrel", "ruby-1.9.3-p194"]
+    ["rabidsquirrel", "rabidsquirrel", "ruby-1.9.3-p194"] #1.9.3.p125 in production
   ]
   
   class << self
