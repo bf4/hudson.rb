@@ -260,7 +260,19 @@ module Hudson
     # </hudson.tasks.Shell>
     def build_shell_step(b, command)
       b.tag! "hudson.tasks.Shell" do
-        b.command command.to_xs.gsub("&amp;", '&') #.gsub(%r{"}, '&quot;').gsub(%r{'}, '&apos;')
+        begin
+          b.command command.to_xs.gsub("&amp;", '&') #.gsub(%r{"}, '&quot;').gsub(%r{'}, '&apos;')
+        rescue => e
+          # e.g. 'Try running `bundle update rspec`'.match(/`(.*)`/)[1] will match: bundle update rspec
+          if bundle_update_cmd = e.message.match(/`(.*)`/)[1]
+            puts "Rescued bundler errror #{e.class}: #{e.message}, #{e.backtrace[0..15].join("\n")}"
+            puts "Trying to update gems with '#{bundle_update_cmd}'"
+            `#{bundle_update_cmd}`
+            retry
+          else
+            raise
+          end
+        end
       end
     end
 
