@@ -18,16 +18,22 @@ include Grit
 # project.job_name("master") returns e.g. Affiliate master
 # builder.current_hudson_jobs # see current jobs if you want
 #
+# All project builds are in ~/.hudson/server/jobs
+# such that the master branch of Affiliate is in
+# ~/.hudson/server/jobs/Affiliate_master/workspace (in case you need to do anything in there, like update a bundle)
 class MetromixProject
   
   attr_accessor :name, :directory, :ruby, :gemset 
   
   PROJECT_DATA = [
     ["Express", "metromix-express", "ruby-1.8.6-p399"],
-    ["Deals", "deals", "ruby-1.8.6-p399"],
     ["Deals_Management", "deals-mgmt", "ruby-1.8.6-p399"],
-    ["Affiliate", "metromix.com", "ruby-1.8.6-p399"],
-    ["URN", "urn_identifiable", "ruby-1.8.6-p399"]
+    ["Deals", "deals", "ruby-1.8.7-p357"],
+    ["Affiliate", "metromix.com", "ruby-1.8.7-p357"],
+    ["URN", "urn_identifiable", "ruby-1.8.7-p357"],
+    ["mmx_common", "mmx_common", "ruby-1.8.7-p357"],
+    ["mmx_subdomains", "mmx-subdomains", "ruby-1.8.7-p357"],
+    ["rabidsquirrel", "rabidsquirrel", "ruby-1.9.3-p194"]
   ]
   
   class << self
@@ -76,7 +82,7 @@ class MetromixProject
   def set_rvmrc
     `rm .rvmrc*`
     `rvm --create --rvmrc "#{rvm_string}"`
-  rescue Exception => e
+  rescue StandardError => e
     puts "Failed to set rvmrc, error #{e.message}"
   end
  
@@ -94,7 +100,6 @@ class MetromixProject
         `git remote prune origin`
         `git reset --hard HEAD`
         `git pull`
-        #`git prune origin`
         #response =  `git reset --hard origin/$(git branch | grep '*' | cut -d' ' -f2) 2>&1` #rediret STDERR to STDOUT
         #puts response
         set_rvmrc
