@@ -1,4 +1,6 @@
 --- 
+:host: ci.lvh.me
+:port: 80
 :repo_config: 
 - - Project1
   - dir1

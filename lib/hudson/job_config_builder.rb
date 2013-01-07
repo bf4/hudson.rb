@@ -9,11 +9,12 @@ module Hudson
     attr_accessor :assigned_node, :node_labels # TODO just one of these
     attr_accessor :envfile
     attr_accessor :gemset
+    attr_accessor :rvm_home
     attr_accessor :email
 
     InvalidTemplate = Class.new(StandardError)
 
-    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem rakeci]
+    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem rakeci rvmrakeci]
 
     # +job_type+ - template of default steps to create with the job
     # +steps+ - array of [:method, cmd], e.g. [:build_shell_step, "bundle initial"]
@@ -214,11 +215,15 @@ module Hudson
       steps = case job_type.to_sym
       when :rakeci
         [
-          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle install && bundle exec rake ci"]
+          [:build_shell_step, "#!/bin/bash -x\nbundle --without production --path=gems && bundle exec rake ci"]
+        ]
+      when :rvmrakeci
+        [
+          [:build_shell_step, "#!/bin/bash -x\nsource \"#{rvm_home}/.rvm/scripts/rvm\"\nrvm --create --rvmrc \"#{gemset}\"\nbundle --without production --path=gems && bundle exec rake ci"]
         ]
       when :rails, :rails3
         [
-          [:build_shell_step, "bundle install"],
+          [:build_shell_step, "bundle --without production --path=gems"],
           [:build_ruby_step, <<-RUBY.gsub(/^            /, '')],
             unless File.exist?("config/database.yml")
               require 'fileutils'

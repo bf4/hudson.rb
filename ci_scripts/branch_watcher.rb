@@ -31,8 +31,10 @@ class CiProject
   PROJECT_DATA = YAML::load File.read(File.expand_path('ci_config.yml',File.dirname(__FILE__)))
 
   class << self
-    attr_accessor :build_email
+    attr_accessor :build_email, :host, :port
     def init_projects
+      @host = PROJECT_DATA[:host]
+      @port = PROJECT_DATA[:port]
       @build_email = PROJECT_DATA[:email]
       @projects = PROJECT_DATA[:repo_config].map do |name, dir, ruby, repo_uri|
         CiProject.new(name, dir, ruby, repo_uri)
@@ -75,7 +77,14 @@ class CiProject
   end
 
   def with_rvm?
-    false
+    !(ENV['RVM_HOME'].to_s.size.zero?)
+  end
+
+  def rvm_home
+    "#{ENV['RVM_HOME']}/.rvm/scripts/rvm"
+  end
+  def load_rvm
+    `/bin/bash -l -c 'source #{rvm_home}'`
   end
 
   def rvm_string
@@ -84,6 +93,7 @@ class CiProject
 
   def set_rvmrc
     `rm .rvmrc*`
+    load_rvm
     `rvm --create --rvmrc "#{rvm_string}"`
   rescue StandardError => e
     puts "Failed to set rvmrc, error #{e.message}"
@@ -134,9 +144,13 @@ end
 
 class HudsonJobBuilder
 
+  def host_and_port
+    "--host #{CiProject.host} --port #{CiProject.port}"
+  end
+
   def current_hudson_jobs
     @current_hudson_jobs ||= begin
-      response = `hudson list --port 3001 --nocolor`
+      response = `hudson list #{host_and_port} --nocolor`
       result = response.split("\n").select { |l| l[0,1] == "*" }
       result.map { |s| s[2..-1] }
     end
@@ -168,8 +182,9 @@ class HudsonJobBuilder
       p "#{job_name} already exists"
     else
       p "About to build a job for #{job_name}"
-      gemset = project.with_rvm? ? "--gemset #{project.rvm_string}" : "--gemset #{project.ruby}@global"
-      cmd = %Q(hudson create "#{project.dir_name}" --name "#{job_name}"  --port 3001 --scm #{project.repo_uri} --template rakeci --scm-branches #{branch} #{gemset} --email #{project.build_email})
+      gemset = project.with_rvm? ? "--gemset #{project.rvm_string}" : ""
+      template = project.with_rvm? ? "rvmrakeci" : "rakeci"
+      cmd = %Q(hudson create "#{project.dir_name}" --name "#{job_name}" #{host_and_port} --scm #{project.repo_uri} --template #{template} --scm-branches #{branch} #{gemset} --email #{project.build_email} --rvm_home #{project.rvm_home})
       p cmd
       `#{cmd}`
     end
