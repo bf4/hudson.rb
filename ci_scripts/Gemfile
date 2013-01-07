@@ -7,7 +7,7 @@ source "http://rubygems.org"
 gem 'rake', '0.8.7'
 # rvm install rubygems 1.3.7
 gem 'terminitor'
-gem 'hudson', :git => "git@github.com:metromix/hudson.rb.git"
+gem 'hudson', :git => "git@github.com:bf4/hudson.rb.git"
 gem 'clockwork'
 gem 'grit'
 # bundle install

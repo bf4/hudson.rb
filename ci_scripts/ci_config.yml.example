@@ -1,0 +1,11 @@
+--- 
+:repo_config: 
+- - Project1
+  - dir1
+  - ruby-1.8.6-p399
+  - git://github.com/user/repo1.git
+- - Project2
+  - dir2
+  - ruby-1.8.6-p399
+  - git://github.com/user/repo2.git
+:email: email@example.com

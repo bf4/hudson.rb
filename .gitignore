@@ -2,3 +2,5 @@ hudson-*.gem
 tmp
 *.rbc
 .bundle
+ci_scripts/*.yml
+ci_scripts/Gemfile.lock

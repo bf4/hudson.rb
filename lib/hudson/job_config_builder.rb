@@ -10,11 +10,11 @@ module Hudson
     attr_accessor :envfile
     attr_accessor :gemset
     attr_accessor :email
-    
+
     InvalidTemplate = Class.new(StandardError)
-    
-    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem metromix]
-    
+
+    VALID_JOB_TEMPLATES = %w[none rails rails3 ruby rubygem rakeci]
+
     # +job_type+ - template of default steps to create with the job
     # +steps+ - array of [:method, cmd], e.g. [:build_shell_step, "bundle initial"]
     #   - Default is based on +job_type+.
@@ -25,13 +25,13 @@ module Hudson
     # +assigned_node+ - restrict this job to running on slaves with these labels (space separated)
     def initialize(job_type = :ruby, &block)
       self.job_type = job_type.to_s if job_type
-      
+
       yield self
 
       self.scm_branches ||= ["master"]
       raise InvalidTemplate unless VALID_JOB_TEMPLATES.include?(job_type.to_s)
     end
-  
+
     def builder
       b = Builder::XmlMarkup.new :indent => 2
       b.instruct!
@@ -74,13 +74,13 @@ module Hudson
         b.runSequentially false if matrix_project?
       end
     end
-  
+
     def to_xml
       builder.to_s
     end
-  
+
     protected
-    
+
     # <scm class="hudson.plugins.git.GitSCM"> ... </scm>
     def build_scm(b)
       if scm && scm =~ /git/
@@ -103,7 +103,7 @@ module Hudson
               b.string
             end
           end
-        
+
           if scm_branches
             b.branches do
               scm_branches.each do |branch|
@@ -113,7 +113,7 @@ module Hudson
               end
             end
           end
-        
+
           b.localBranch
           b.mergeOptions
           b.recursiveSubmodules false
@@ -134,7 +134,7 @@ module Hudson
     def matrix_project?
       !(rubies.blank? && node_labels.blank?)
     end
-  
+
     # <hudson.matrix.TextAxis>
     #   <name>RUBY_VERSION</name>
     #   <values>
@@ -175,7 +175,7 @@ module Hudson
         end
       end
     end
-    
+
     # Example:
     # <buildWrappers>
     #   <hudson.plugins.envfile.EnvFileBuildWrapper>
@@ -196,7 +196,7 @@ module Hudson
         b.buildWrappers
       end
     end
-    
+
     # The important sequence of steps that are run to process a job build.
     # Can be defaulted by the +job_type+ using +default_steps(job_type)+,
     # or customized via +steps+ array.
@@ -209,12 +209,12 @@ module Hudson
         end
       end
     end
-    
+
     def default_steps(job_type)
       steps = case job_type.to_sym
-      when :metromix
+      when :rakeci
         [
-          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle install\nbundle exec rake hudson:ci"]
+          [:build_shell_step, "#!/bin/bash -x\nsource \"$HOME/.rvm/scripts/rvm\"\nrvm use \"#{gemset}\"\nbundle install && bundle exec rake ci"]
         ]
       when :rails, :rails3
         [
@@ -247,14 +247,14 @@ module Hudson
       end
       rubies.blank? ? steps : default_rvm_steps + steps
     end
-    
+
     def default_rvm_steps
       [
         [:build_shell_step, "rvm $RUBY_VERSION"],
         [:build_shell_step, "rvm gemset create ruby-$RUBY_VERSION && rvm gemset use ruby-$RUBY_VERSION"]
       ]
     end
-    
+
     # <hudson.tasks.Shell>
     #   <command>echo &apos;THERE ARE NO STEPS! Except this one...&apos;</command>
     # </hudson.tasks.Shell>
@@ -291,7 +291,7 @@ module Hudson
         end
       end
     end
-  
+
     # Usage: build_ruby_step b, "db:schema:load"
     #
     # <hudson.plugins.rake.Rake>
@@ -312,7 +312,7 @@ module Hudson
         b.silent false
       end
     end
-    
+
     # Converts git@github.com:drnic/newgem.git into git://github.com/drnic/newgem.git
     def public_only_git_scm(scm_url)
       if scm_url =~ /git@([\w\-_.]+):(.+)\.git/
